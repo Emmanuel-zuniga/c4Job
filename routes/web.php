@@ -22,3 +22,8 @@ Route::get('/indes', function () {
 Route::get('/indes2/{name}/{lastname?}', function ($name,$lastName=null) {
     return 'mi nombre es '.$name.' '.$lastName;
 });
+Auth::routes();
+
+Route::get('/home', 'HomeController@index')->name('home');
+
+Route::get('register/verify/{code}', 'Auth\RegisterController@verify_code');

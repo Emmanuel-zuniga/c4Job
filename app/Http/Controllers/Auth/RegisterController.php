@@ -63,10 +63,34 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
-        return User::create([
+
+        $data['confirmation_code'] = str_random(25);
+        $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
+            'confirmation_code' => $data['confirmation_code'],
         ]);
+
+         // Send confirmation code
+        \Mail::send('emails.confirmation_code', $data, function($message) use ($data) {
+            $message->to($data['email'], $data['name'])->subject('Por favor confirma tu correo');
+        });
+
+
+        return $user;
+    }
+    public function verify_code($code){
+        return view('emails/confirmation_code');
+        $user = User::where('confirmation_code','=',$code)->first();
+        if(!$user){
+            return redirect('/');
+        }else{
+            $user->confirmed = true;
+            $user->confitmation_code = null;
+            $user->save();
+            return redirect('/login');
+        }
+        
     }
 }
